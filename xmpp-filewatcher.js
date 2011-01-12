@@ -33,7 +33,6 @@ var FileWatcher = {
     var index;
     for (index = 0; index < FileWatcher.subscribedJids.length; index += 1) {
       var toJid = FileWatcher.subscribedJids[index];
-      console.log("toJID " + toJid);
       
       var message = new xmpp.Element('message',
                                     { to: toJid,
@@ -46,12 +45,14 @@ var FileWatcher = {
   setWatchedDir: function(filepath) {
     FileWatcher.monitor = watch.createMonitor(filepath, function (monitor) {
        monitor.on("created", function (f, curr, prev) {
+         var str = "File created: " + f.toString().replace(filepath + '/', '');
          FileWatcher.sendToSubscribers(str);
-         console.log(str);         
+      //   console.log(str);         
        });
        monitor.on("removed", function (f, stat) {
+         var str = "File removed: " + f.toString().replace(filepath + '/', '');         
          FileWatcher.sendToSubscribers(str);
-         console.log(str);
+       //  console.log(str);
        });
      });    
   },
