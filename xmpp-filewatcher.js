@@ -23,10 +23,31 @@ var FileWatcher = {
   jabberid: null,
   server: null,
   monitor: null,
+  pidFile: null,
   subscribedJids: [],
   commandJids: [],  
   ressource: "file_watcher",
   helpText: "I can't help you.",
+  
+  createPidFile: function() {
+    var pid = null;
+
+    if (path.exists(FileWatcher.pidFile)) {
+      pid = fs.readFileSync(FileWatcher.pidFile, 'utf8');    
+      if (pid != process.pid.toString()) {
+        sys.puts("PID file " + FileWatcher.pidFile + ' exists. Already running as PID ' + pid + '?');
+        process.exit(-1);
+      }
+    } else {
+      fs.writeFileSync(FileWatcher.pidFile, process.pid.toString());        
+    }   
+  },
+  
+  unlinkPidFile: function() {
+    if(FileWatcher.pidFile && fs.readFileSync(FileWatcher.pidFile, 'utf8') === process.pid.toString()) {
+       fs.unlinkSync(FileWatcher.pidFile);
+    }    
+  },
   
   sendToSubscribers: function(text) {
 
@@ -160,6 +181,8 @@ process.on('SIGINT', function () {
     // disconnect and exit on SIGINT e.g. ctrl-c
     console.log('Got SIGINT.');
     FileWatcher.disconnect();
+    FileWatcher.unlinkPidFile();
+    
     process.exit(0);
 });
 
@@ -167,6 +190,8 @@ process.on('SIGTERM', function () {
     // disconnect and exit on SIGINT e.g. ctrl-c
     console.log('Got SIGTERM. Quitting…');
     FileWatcher.disconnect();
+    FileWatcher.unlinkPidFile();
+    
     process.exit(0);
 });
 
@@ -189,12 +214,22 @@ var settingsData = fs.readFileSync(dotdir);
 var settings = json.parse(settingsData);
 
 
+if(settings['pidFile']) {
+  FileWatcher.pidFile = settings['pidFile'];  
+  
+  FileWatcher.createPidFile();
+
+}
+
 
 FileWatcher.setWatchedDir(argv[2]);
 
 
 FileWatcher.subscribedJids = settings['subscribedJids'];
 FileWatcher.commandJids = settings['commandJids'];
+
+
+
 
 // connect 
 FileWatcher.connect(settings['username'],
