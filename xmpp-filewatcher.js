@@ -72,8 +72,8 @@ var FileWatcher = {
                 replyBody = FileWatcher.helpText;
                 break;
               default:
-                replyBody = "Sorry, but I don't know how to do '" + command + "'"
-                break:
+                replyBody = "Sorry, but I don't know how to do '" + command + "'";
+                break;
             }
             
             var reply = new xmpp.Element('message',
@@ -109,7 +109,7 @@ var FileWatcher = {
        presence.c('status').t(message);      
     }
     
-    console.log("Presence change: " + presence.toString());
+//    console.log("Presence change: " + presence.toString());
     FileWatcher.connection.send(presence);
   },
   
@@ -170,9 +170,7 @@ process.on('SIGTERM', function () {
 });
 
 if (argv[2] == null) {
-  sys.puts "Usage: " + argv[0] + 
-            " " + argv[1] + 
-            " dir_to_watch"; 
+  sys.puts("Usage: " + argv[0] + " " + argv[1] + " dir_to_watch"); 
   sys.puts("");
   sys.puts("Configuration sits in ~/.file_watch/settings.json. Required key:\n");
   sys.puts(" - subscribedJids (Array)");
@@ -185,8 +183,9 @@ if (argv[2] == null) {
 }
 
 
-settingsData = fs.readSync(js.openSync("~/.file_watch/settings.json", "r"));
-settings = json.parse(settingsData);
+var dotdir = fs.realpathSync(process.env['HOME'] + "/.file_watch/settings.json");
+var settingsData = fs.readFileSync(dotdir);
+var settings = json.parse(settingsData);
 
 
 
