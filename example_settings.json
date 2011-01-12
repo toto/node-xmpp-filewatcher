@@ -1,0 +1,7 @@
+{
+  "subscribedJids": ["some@jabber.id"],
+  "commandJids": ["some@jabber.id"],
+  "username": "login@jabber.id",
+  "password": "password",  
+  "server": "server",    
+}
